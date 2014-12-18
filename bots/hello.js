@@ -1,5 +1,8 @@
+var FeedParser = require('feedparser');
+var http = require('http');
+
 module.exports = {
-  path:    '/hello',
+  path:    '/echo',
   handler: function(request, reply) {
 
     // Slack Payload Cheatsheet
@@ -13,32 +16,33 @@ module.exports = {
     //   user_name:    "Steve"
     //   text:         "googlebot: What is the air-speed velocity of an unladen swallow?"
     // }
-    var msg = request.payload;
+    // Non-200 responses will be retried a reasonable number of times.
+		var status = 200;
 
-    // Suppose you only want to respond to messages that match a certain criteria
-    if (msg.text.match(/\bhello\b/)) {
-
-      // Empty bodies or bodies with an empty text property will
-      // simply be ignored.
-      var body = 'Herrrro there!';
-
-      // Non-200 responses will be retried a reasonable number of times.
-      var status = 200;
-
-      // If you would like to change the name on a per-response basis,
-      // simply include a `username` property in your response.
-      var username = 'hello-bot';
-
-      // Respond back to Slack
-      reply({
-        'text':     body,
-        'username': username
-      }).code(status);
-
-    } else {
-
-      // This is not the msg you're looking for.
-      reply().code(204);
-    }
+		// If you would like to change the name on a per-response basis,
+		// simply include a `username` property in your response.
+		http.get('http://feeds.feedburner.com/TechCrunch/', function(res) {
+			res.pipe(new FeedParser({}))
+				.on('error', function(error){
+						reply({
+							'text':     '',
+						}).code(500);
+				})
+				.on('meta', function(meta){
+						// Store the metadata for later use
+						feedMeta = meta;
+				})
+				.on('readable', function(){
+						var stream = this, item;
+						while (item = stream.read()){
+								// Each 'readable' event will contain 1 article
+								// Add the article to the list of episodes
+								reply({
+									'text': item.title + ' ' + item.link
+								}).code(status);
+								return;
+						}
+				})
+			});
   }
 };
