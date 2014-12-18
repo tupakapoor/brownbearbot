@@ -1,5 +1,7 @@
 var FeedParser = require('feedparser');
 var http = require('http');
+var url = require('url');
+var querystring = require('querystring');
 
 module.exports = {
   path:    '/echo',
@@ -18,6 +20,7 @@ module.exports = {
     // }
     // Non-200 responses will be retried a reasonable number of times.
 		var status = 200;
+		var hookUrl = request.query.url;
 
 		// If you would like to change the name on a per-response basis,
 		// simply include a `username` property in your response.
@@ -37,12 +40,34 @@ module.exports = {
 						while (item = stream.read()){
 								// Each 'readable' event will contain 1 article
 								// Add the article to the list of episodes
-								reply({
-									'text': item.title + ' ' + item.link
-								}).code(status);
+								sendPost(hookUrl, {'text': '<' + item.link + '|' + item.title + '>'});
+								reply('').code(status);
 								return;
 						}
 				})
 			});
   }
 };
+
+function sendPost(link, data) {
+	var post_options = url.parse(link);
+	var post_data = querystring.stringify(data);
+	post_options.port = 443;
+	post_options.method = 'POST';
+	post_options.headers =  {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						'Content-Length': post_data.length
+      		};
+
+  // Set up the request
+  var post_req = http.request(post_options, function(res) {
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+          console.log('Response: ' + chunk);
+      });
+  });
+
+  // post the data
+  post_req.write(post_data);
+  post_req.end();
+}
