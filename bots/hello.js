@@ -38,8 +38,11 @@ module.exports = {
 					}
 			});
 			forecast.get([40.433708, -79.940594], function(err, weather) {
-				if(err) return console.dir(err);
-				console.dir(weather);
+				if(err) reply({'text':''}).code(500);
+				var current = 'The current temp is ' + weather.currently.temperature + ' but feels like ' + weather.currently.apparentTemperature + '.';
+				var response = {'text': current + ' ' + weather.minutely.summary + ' ' + weather.hourly.summary + ' ' + weather.daily.summary};
+				console.log(response);
+				reply(JSON.stringify(response)).code(status);
 			});
 		}
 		else {
