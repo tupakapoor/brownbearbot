@@ -4,9 +4,6 @@ var request = require('request');
 var url = require('url');
 var querystring = require('querystring');
 
-var rand = Math.floor((Math.random() * 10));
-var counter = 0;
-
 module.exports = {
   path:    '/echo',
   handler: function(request, reply) {
@@ -25,7 +22,8 @@ module.exports = {
     // Non-200 responses will be retried a reasonable number of times.
 		var status = 200;
 		var hookUrl = request.query.url;
-
+		var rand = Math.floor((Math.random() * 10));
+		var counter = 0;
 		// If you would like to change the name on a per-response basis,
 		// simply include a `username` property in your response.
 		http.get('http://feeds.feedburner.com/TechCrunchIT', function(res) {
