@@ -1,7 +1,11 @@
 var FeedParser = require('feedparser');
 var http = require('http');
+var request = require('request');
 var url = require('url');
 var querystring = require('querystring');
+
+var rand = Math.floor((Math.random() * 10));
+var counter = 0;
 
 module.exports = {
   path:    '/echo',
@@ -24,7 +28,7 @@ module.exports = {
 
 		// If you would like to change the name on a per-response basis,
 		// simply include a `username` property in your response.
-		http.get('http://feeds.feedburner.com/TechCrunch/', function(res) {
+		http.get('http://feeds.feedburner.com/TechCrunchIT', function(res) {
 			res.pipe(new FeedParser({}))
 				.on('error', function(error){
 						reply({
@@ -40,7 +44,10 @@ module.exports = {
 						while (item = stream.read()){
 								// Each 'readable' event will contain 1 article
 								// Add the article to the list of episodes
-								sendPost(hookUrl, {'text': '<' + item.link + '|' + item.title + '>'});
+								if (counter == rand) {
+  								sendPost(hookUrl, {'text': '<' + item.link + '|' + item.title + '>'});
+  							}
+  							counter++;
 								reply('').code(status);
 								return;
 						}
@@ -50,24 +57,33 @@ module.exports = {
 };
 
 function sendPost(link, data) {
-	var post_options = url.parse(link);
-	var post_data = querystring.stringify(data);
-	post_options.port = 443;
-	post_options.method = 'POST';
-	post_options.headers =  {
-						'Content-Type': 'application/x-www-form-urlencoded',
-						'Content-Length': post_data.length
-      		};
+	// var post_options = url.parse(link);
+// 	var post_data = querystring.stringify(data);
+// 	post_options.port = 443;
+// 	post_options.method = 'POST';
+// 	post_options.headers =  {
+// 						'Content-Type': 'application/x-www-form-urlencoded',
+// 						'Content-Length': post_data.length
+//       		};
+// 
+//   // Set up the request
+//   var post_req = request(post_options, null);
+// 
+//   // post the data
+//   post_req.write(post_data);
+//   post_req.end();
 
-  // Set up the request
-  var post_req = http.request(post_options, function(res) {
-      res.setEncoding('utf8');
-      res.on('data', function (chunk) {
-          console.log('Response: ' + chunk);
-      });
-  });
-
-  // post the data
-  post_req.write(post_data);
-  post_req.end();
+  request.post({
+                url:   link,
+                body:    JSON.stringify(data)
+            }, function (error, response, body) {
+            console.log(data);
+            console.log(error);
+            console.log(response.statusCode);
+        if (!error && response.statusCode == 200) {
+          console.log(body) // Print the google web page.
+        }
+        return;
+     }
+  );
 }
