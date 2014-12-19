@@ -23,9 +23,6 @@ module.exports = {
 		var status = 200;
 		var hookUrl = request.query.url;
 		var requestedFeed = request.payload.text;
-		console.log('BLAH');
-		console.log(requestedFeed);
-		console.log(hookUrl);
 		var rand = Math.floor((Math.random() * 10));
 		var counter = 0;
 		var feed = requestedFeed == 'deal' ? 'http://feeds.feedburner.com/SlickdealsnetForums-9' : 'http://feeds.feedburner.com/TechCrunchIT';
