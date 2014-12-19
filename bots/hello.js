@@ -6,7 +6,7 @@ var querystring = require('querystring');
 
 module.exports = {
   path:    '/echo',
-  handler: function(req, reply) {
+  handler: function(request, reply) {
 
     // Slack Payload Cheatsheet
     // {
@@ -21,9 +21,11 @@ module.exports = {
     // }
     // Non-200 responses will be retried a reasonable number of times.
 		var status = 200;
-		var hookUrl = req.query.url;
-		var requestedFeed = req.payload.text;
+		var hookUrl = request.query.url;
+		var requestedFeed = request.payload.text;
+		console.log('BLAH');
 		console.log(requestedFeed);
+		console.log(hookUrl);
 		var rand = Math.floor((Math.random() * 10));
 		var counter = 0;
 		var feed = requestedFeed == 'deal' ? 'http://feeds.feedburner.com/SlickdealsnetForums-9' : 'http://feeds.feedburner.com/TechCrunchIT';
