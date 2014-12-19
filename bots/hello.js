@@ -42,7 +42,7 @@ module.exports = {
 								// Add the article to the list of episodes
 								counter++;
 								if (counter == rand) {
-  								sendPost(hookUrl, {'text': item.link, 'unfurl_links': true});
+  								sendPost(hookUrl, {'text': '<'+item.link+'|'+item.title+'>', 'unfurl_links': true});
   								reply(JSON.stringify({'text': item.link})).code(status);
   								return;
   						  }
