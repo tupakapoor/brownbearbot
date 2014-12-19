@@ -42,6 +42,7 @@ module.exports = {
 				var current = 'The current temp is ' + weather.currently.temperature + ' but feels like ' + weather.currently.apparentTemperature + '.';
 				var response = {'text': current + ' ' + weather.minutely.summary + ' ' + weather.hourly.summary + ' ' + weather.daily.summary, 'username': 'bluebirdweather', 'icon_url': 'http://brownbearnews.herokuapp.com/bluebird.png'};
 				console.log(response);
+				sendPost(hookUrl, response);
 				reply(JSON.stringify(response)).code(status);
 			});
 		}
