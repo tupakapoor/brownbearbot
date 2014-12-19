@@ -3,6 +3,7 @@ var http = require('http');
 var request = require('request');
 var url = require('url');
 var querystring = require('querystring');
+var Forecast = require('forecast');
 
 module.exports = {
   path:    '/echo',
@@ -25,30 +26,49 @@ module.exports = {
 		var requestedFeed = request.payload.text;
 		var rand = Math.floor((Math.random() * 10)) + 1;
 		var counter = 0;
-		var feed = requestedFeed == 'deal' ? 'http://feeds.feedburner.com/SlickdealsnetForums-9' : 'http://feeds.feedburner.com/TechCrunchIT';
-		// If you would like to change the name on a per-response basis,
-		// simply include a `username` property in your response.
-		http.get(feed, function(res) {
-			res.pipe(new FeedParser({}))
-				.on('error', function(error){
-						reply({
-							'text':     '',
-						}).code(500);
-				})
-				.on('readable', function(){
-						var stream = this, item;
-						while (item = stream.read()){
-								// Each 'readable' event will contain 1 article
-								// Add the article to the list of episodes
-								counter++;
-								if (counter == rand) {
-  								sendPost(hookUrl, {'text': '<'+item.link+'|'+item.title+'>', 'unfurl_links': true});
-  								reply(JSON.stringify({'text': item.link})).code(status);
-  								return;
-  						  }
-						}
-				})
+		if (requestedFeed == 'weather') {
+			var forecast = new Forecast({
+				service: 'forecast.io',
+				key: '917893bf12931445f98a7fae15e60a7d',
+				units: 'f', // Only the first letter is parsed
+				cache: true,      // Cache API requests?
+				ttl: {            // How long to cache requests. Uses syntax from moment.js: http://momentjs.com/docs/#/durations/creating/
+					minutes: 10,
+					seconds: 0
+					}
 			});
+			forecast.get([40.433708, -79.940594], function(err, weather) {
+				if(err) return console.dir(err);
+				console.dir(weather);
+			});
+		}
+		else {
+			var feed = requestedFeed == 'deal' ? 'http://feeds.feedburner.com/SlickdealsnetForums-9' : 'http://feeds.feedburner.com/TechCrunchIT';
+
+			// If you would like to change the name on a per-response basis,
+			// simply include a `username` property in your response.
+			http.get(feed, function(res) {
+				res.pipe(new FeedParser({}))
+					.on('error', function(error){
+							reply({
+								'text':     '',
+							}).code(500);
+					})
+					.on('readable', function(){
+							var stream = this, item;
+							while (item = stream.read()){
+									// Each 'readable' event will contain 1 article
+									// Add the article to the list of episodes
+									counter++;
+									if (counter == rand) {
+										sendPost(hookUrl, {'text': '<'+item.link+'|'+item.title+'>', 'unfurl_links': true});
+										reply(JSON.stringify({'text': item.link})).code(status);
+										return;
+									}
+							}
+					})
+				});
+			}
   }
 };
 
@@ -61,10 +81,10 @@ function sendPost(link, data) {
 // 						'Content-Type': 'application/x-www-form-urlencoded',
 // 						'Content-Length': post_data.length
 //       		};
-// 
+//
 //   // Set up the request
 //   var post_req = request(post_options, null);
-// 
+//
 //   // post the data
 //   post_req.write(post_data);
 //   post_req.end();
