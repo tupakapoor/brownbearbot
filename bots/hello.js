@@ -23,7 +23,7 @@ module.exports = {
 		var status = 200;
 		var hookUrl = request.query.url;
 		var requestedFeed = request.payload.text;
-		var rand = Math.floor((Math.random() * 10));
+		var rand = Math.floor((Math.random() * 5));
 		var counter = 0;
 		var feed = requestedFeed == 'deal' ? 'http://feeds.feedburner.com/SlickdealsnetForums-9' : 'http://feeds.feedburner.com/TechCrunchIT';
 		// If you would like to change the name on a per-response basis,
@@ -35,21 +35,17 @@ module.exports = {
 							'text':     '',
 						}).code(500);
 				})
-				.on('meta', function(meta){
-						// Store the metadata for later use
-						feedMeta = meta;
-				})
 				.on('readable', function(){
 						var stream = this, item;
 						while (item = stream.read()){
 								// Each 'readable' event will contain 1 article
 								// Add the article to the list of episodes
 								if (counter == rand) {
-  								//sendPost(hookUrl, {'text': '<' + item.link + '|' + item.title + '>'});
-  							}
+  								sendPost(hookUrl, {'text': '<' + item.link + '>'});
+  								reply(JSON.stringify({'text': '<' + item.link + '>'})).code(status);
+  								return;
+  						  }
   							counter++;
-								reply('').code(status);
-								return;
 						}
 				})
 			});
