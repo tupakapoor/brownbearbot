@@ -40,7 +40,7 @@ module.exports = {
 			forecast.get([40.433708, -79.940594], function(err, weather) {
 				if(err) reply({'text':''}).code(500);
 				var current = 'The current temp is ' + weather.currently.temperature + ' but feels like ' + weather.currently.apparentTemperature + '.';
-				var response = {'text': current + ' ' + weather.minutely.summary + ' ' + weather.hourly.summary + ' ' + weather.daily.summary, 'username': 'bluebirdweather', 'icon_url': 'http://brownbearnews.herokuapp.com/bluebird.png'};
+				var response = {'text': current + ' ' + weather.minutely.summary + ' ' + weather.hourly.summary + ' ' + weather.daily.summary, 'username': 'bluebirdweather', 'icon_url': 'http://brownbearnews.herokuapp.com/bluebird2.png'};
 				console.log(response);
 				sendPost(hookUrl, response);
 				reply(JSON.stringify(response)).code(status);
@@ -48,9 +48,6 @@ module.exports = {
 		}
 		else {
 			var feed = requestedFeed == 'deal' ? 'http://feeds.feedburner.com/SlickdealsnetForums-9' : 'http://feeds.feedburner.com/TechCrunchIT';
-
-			// If you would like to change the name on a per-response basis,
-			// simply include a `username` property in your response.
 			http.get(feed, function(res) {
 				res.pipe(new FeedParser({}))
 					.on('error', function(error){
@@ -65,7 +62,12 @@ module.exports = {
 									// Add the article to the list of episodes
 									counter++;
 									if (counter == rand) {
-										sendPost(hookUrl, {'text': '<'+item.link+'|'+item.title+'>', 'unfurl_links': true});
+										var data = {'text': '<'+item.link+'|'+item.title+'>', 'unfurl_links': true};
+										if (requestedFeed == 'deal') {
+											data.username = 'brownbeardeals';
+											data.icon_url = 'http://brownbearnews.herokuapp.com/beardeal.jpg';
+										}
+										sendPost(hookUrl, data);
 										reply(JSON.stringify({'text': item.link})).code(status);
 										return;
 									}
@@ -77,22 +79,6 @@ module.exports = {
 };
 
 function sendPost(link, data) {
-	// var post_options = url.parse(link);
-// 	var post_data = querystring.stringify(data);
-// 	post_options.port = 443;
-// 	post_options.method = 'POST';
-// 	post_options.headers =  {
-// 						'Content-Type': 'application/x-www-form-urlencoded',
-// 						'Content-Length': post_data.length
-//       		};
-//
-//   // Set up the request
-//   var post_req = request(post_options, null);
-//
-//   // post the data
-//   post_req.write(post_data);
-//   post_req.end();
-
   request.post({
                 url:   link,
                 body:    JSON.stringify(data)
