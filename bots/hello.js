@@ -49,8 +49,35 @@ module.exports = {
 					data.icon_url = 'http://brownbearnews.herokuapp.com/bearvids.jpg';
 					sendPost(hookUrl, data);
 				}
-				reply(JSON.stringify(data));
+				reply(JSON.stringify(data), status));
 			});
+		}
+		else if (requestedFeed == 'bot') {
+			data = {};
+			var seed = Math.floor((Math.random() * 100)) % 5;
+			switch (seed) {
+				case 0:
+					data.text = 'lol';
+					break;
+				case 1:
+					data.text = 'nice';
+					break;
+				case 2:
+					data.text = 'word';
+					break;
+				case 3:
+					data.text = 'predict for me @bonerscopes';
+					break;
+				case 4:
+					data.text = 'when are we :vidaygame:ing';
+					break;
+				default:
+					data.text = ':+1:';
+			}
+			data.username = 'brownbearbot';
+			data.icon_url = 'http://brownbearnews.herokuapp.com/bearbot.jpg';
+			sendPost(hookUrl, data);
+			reply(JSON.stringify(data), status);
 		}
 		else {
 			var feed = requestedFeed == 'deal' ? 'http://feeds.feedburner.com/SlickdealsnetForums-9' : 'http://feeds.feedburner.com/TechCrunchIT';
