@@ -4,23 +4,11 @@ var request = require('request');
 var url = require('url');
 var querystring = require('querystring');
 var Forecast = require('forecast');
+var YouTube = require('youtube-node');
 
 module.exports = {
   path:    '/echo',
   handler: function(request, reply) {
-
-    // Slack Payload Cheatsheet
-    // {
-    //   token:        "9itBZe5CqNXUsqh3RXACsfqb"
-    //   team_id:      "T0001"
-    //   channel_id:   "C2147483705"
-    //   channel_name: "test"
-    //   timestamp:    "1355517523.000005"
-    //   user_id:      "U2147483697"
-    //   user_name:    "Steve"
-    //   text:         "googlebot: What is the air-speed velocity of an unladen swallow?"
-    // }
-    // Non-200 responses will be retried a reasonable number of times.
 		var status = 200;
 		var hookUrl = request.query.url;
 		var requestedFeed = request.payload.text;
@@ -46,6 +34,24 @@ module.exports = {
 				reply(JSON.stringify(response)).code(status);
 			});
 		}
+		else if (requestedFeed.indexOf('video') == 0) {
+			var search = requestedFeed.replace('video', '');
+			console.log('search term: ' + search);
+			var yt = new YouTube();
+			yt.setKey('AIzaSyAqoNM3NWI2yXGK8bbSVPb2F-6Hpaj7Je4');
+			yt.search(search, 1, function(resultData) {
+				var data = {};
+				if (resultData.items && resultData.items[0].id) {
+					var item = resultData.items[0];
+					data.text = '<https://www.youtube.com/watch?v=' + item.id.videoId+'|'+item.snippet.title+'>';
+					data.unfurl_links = true;
+					data.username = 'brownbearvideos';
+					data.icon_url = 'http://brownbearnews.herokuapp.com/bearvids.jpg';
+					console.dir(data);
+				}
+				reply(JSON.stringify(data));
+			});
+		}
 		else {
 			var feed = requestedFeed == 'deal' ? 'http://feeds.feedburner.com/SlickdealsnetForums-9' : 'http://feeds.feedburner.com/TechCrunchIT';
 			http.get(feed, function(res) {
@@ -68,7 +74,7 @@ module.exports = {
 											data.icon_url = 'http://brownbearnews.herokuapp.com/beardeal.jpg';
 										}
 										sendPost(hookUrl, data);
-										reply(JSON.stringify({'text': item.link})).code(status);
+										reply(JSON.stringify(data)).code(status);
 										return;
 									}
 							}

@@ -16,7 +16,8 @@
     "hapi": "^2.6.0",
     "feedparser": "0.16.3",
     "request": "2.51.0",
-    "forecast": "0.2.1"
+    "forecast": "0.2.1",
+    "youtube-node": "1.1.2"
   },
   "devDependencies": {
     "tape": "~2.4.0"
