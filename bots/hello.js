@@ -47,7 +47,7 @@ module.exports = {
 					data.unfurl_links = true;
 					data.username = 'brownbearvideos';
 					data.icon_url = 'http://brownbearnews.herokuapp.com/bearvids.jpg';
-					console.dir(data);
+					sendPost(hookUrl, data);
 				}
 				reply(JSON.stringify(data));
 			});
