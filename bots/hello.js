@@ -49,7 +49,7 @@ module.exports = {
 					data.icon_url = 'http://brownbearnews.herokuapp.com/bearvids.jpg';
 					sendPost(hookUrl, data);
 				}
-				reply(JSON.stringify(data), status));
+				reply(JSON.stringify(data), status);
 			});
 		}
 		else if (requestedFeed == 'bot') {
