@@ -52,9 +52,15 @@ module.exports = {
 				reply(JSON.stringify(data), status);
 			});
 		}
-		else if (requestedFeed == 'bot') {
+		else if (requestedFeed.indexOf('bot') == 0) {
 			data = {};
-			var seed = Math.floor((Math.random() * 100)) % 5;
+			var seed = 0;
+			if (requestedFeed == 'bot') {
+			  seed = Math.floor((Math.random() * 100)) % 5;
+			} 
+			else {
+			  seed = parseInt(requestedFeed.replace('bot', ''));
+			}
 			switch (seed) {
 				case 0:
 					data.text = 'lol';
@@ -69,7 +75,7 @@ module.exports = {
 					data.text = 'predict for me @bonerscopes';
 					break;
 				case 4:
-					data.text = 'when are we :vidaygame:ing';
+					data.text = 'when are we :vidyagame:ing';
 					break;
 				default:
 					data.text = ':+1:';
